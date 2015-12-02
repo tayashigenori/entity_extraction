@@ -18,13 +18,11 @@ def load_file(filename):
 
 """
 large_kanji_patterns = {
-    re.compile(u"万(?=[0-9]{5})") : False,
     re.compile(u"万(?=[0-9]{4})") : "0" * 0,
     re.compile(u"万(?=[0-9]{3})") : "0" * 1,
     re.compile(u"万(?=[0-9]{2})") : "0" * 2,
     re.compile(u"万(?=[0-9]{1})") : "0" * 3,
     re.compile(u"万(?=[0-9]{0})") : "0" * 4,
-    re.compile(u"億(?=[0-9]{9})") : False,
     re.compile(u"億(?=[0-9]{8})") : "0" * 0,
     re.compile(u"億(?=[0-9]{7})") : "0" * 1,
     re.compile(u"億(?=[0-9]{6})") : "0" * 2,
@@ -37,14 +35,11 @@ large_kanji_patterns = {
     ....
     }
 small_kanji_patterns = {
-    re.compile(u"十(?=[0-9]{2})") : False,
     re.compile(u"十(?=[0-9]{1})") : "0" * 0
     re.compile(u"十(?=[0-9]{0})") : "0" * 1
-    re.compile(u"百(?=[0-9]{3})") : False,
     re.compile(u"百(?=[0-9]{2})") : "0" * 0
     re.compile(u"百(?=[0-9]{1})") : "0" * 1
     re.compile(u"百(?=[0-9]{0})") : "0" * 2
-    re.compile(u"千(?=[0-9]{4})") : False,
     re.compile(u"千(?=[0-9]{3})") : "0" * 0
     re.compile(u"千(?=[0-9]{2})") : "0" * 1
     re.compile(u"千(?=[0-9]{1})") : "0" * 2
@@ -56,9 +51,6 @@ PAT_ONLY_NUM = re.compile("^[0-9]+$")
 
 kanji_10000keta_patterns = []
 for large_kanji, power in load_file("./tonum.kanji_10000keta.csv").items():
-    kanji_10000keta_patterns.append(
-        (u"%s(?=[0-9]{%d})" %(large_kanji, int(power)+1), False)
-        )
     kanji_10000keta_patterns += [
         (u"%s(?=[0-9]{%d})" %(large_kanji, int(power)-i), "0" * i)
         for i in range(5)
@@ -66,9 +58,6 @@ for large_kanji, power in load_file("./tonum.kanji_10000keta.csv").items():
 
 kanji_10keta_patterns = []
 for small_kanji, power in load_file("./tonum.kanji_10keta.csv").items():
-    kanji_10keta_patterns.append(
-        (u"%s(?=[0-9]{%d})" %(small_kanji, int(power)+1), False)
-        )
     kanji_10keta_patterns += [
         (u"%s(?=[0-9]{%d})" %(small_kanji, int(power)-i), "0" * i)
         for i in range(5)
@@ -111,24 +100,12 @@ class KanjiNumber:
     def tonum_kanji_10keta(self, text):
         for (pat_str, after) in kanji_10keta_patterns:
             pat = re.compile(pat_str)
-            if after == False: # invalid pattern
-                m = re.search(pat, text)
-                if m:
-                    self._is_valid = False
-                    return text
-            else:
-                text = re.sub(pat, after, text)
+            text = re.sub(pat, after, text)
         return text
     def tonum_kanji_10000keta(self, text):
         for (pat_str, after) in kanji_10000keta_patterns:
             pat = re.compile(pat_str)
-            if after == False: # invalid pattern
-                m = re.search(pat, text)
-                if m:
-                    self._is_valid = False
-                    return text
-            else:
-                text = re.sub(pat, after, text)
+            text = re.sub(pat, after, text)
         return text
     """
     getter
